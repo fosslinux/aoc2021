@@ -12,22 +12,26 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("Unable to read file: %s", err))
 	}
-	in := s.Split(string(bin), "\n")
-	in = in[:len(in)-1]
+	sin := s.Split(string(bin), "\n")
+	sin = sin[:len(sin)-1]
+	// Convert into ints
+	in := make([]int, 0)
+	for _, num := range sin {
+		integer, err := strconv.Atoi(num)
+		if err != nil {
+			panic(err)
+		}
+		in = append(in, integer)
+	}
 
 	count := 0
 	for i := range in {
-		if i == 0 {
+		if i < 3 {
 			continue
 		}
-		var cur, prev int
-		if cur, err = strconv.Atoi(in[i]); err != nil {
-			panic(err)
-		}
-		if prev, err = strconv.Atoi(in[i-1]); err != nil {
-			panic(err)
-		}
-		if cur > prev {
+		a := in[i-3] + in[i-2] + in[i-1]
+		b := in[i-2] + in[i-1] + in[i]
+		if b > a {
 			count++
 		}
 	}
