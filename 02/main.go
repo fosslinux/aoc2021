@@ -26,6 +26,27 @@ func parta(in []string) int {
 	return pos * depth
 }
 
+func partb(in []string) int {
+	aim := 0
+	pos := 0
+	depth := 0
+	for _, instruction := range in {
+		parts := s.Split(instruction, " ")
+		direction, sMagnitude := parts[0], parts[1]
+		magnitude, _ := strconv.Atoi(sMagnitude)
+		switch direction {
+		case "down":
+			aim += magnitude
+		case "up":
+			aim -= magnitude
+		case "forward":
+			pos += magnitude
+			depth += magnitude * aim
+		}
+	}
+	return pos * depth
+}
+
 func main() {
 	bin, err := os.ReadFile(os.Args[1])
 	if err != nil {
@@ -36,5 +57,7 @@ func main() {
 
 	if os.Args[2] == "a" {
 		fmt.Println(parta(in))
+	} else if os.Args[2] == "b" {
+		fmt.Println(partb(in))
 	}
 }
