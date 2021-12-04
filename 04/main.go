@@ -12,25 +12,14 @@ type cell struct {
 	state bool
 }
 
-func parta(nums []int, in []string) int {
-	// Yucky board parsing
-	boards := make([][][]cell, 0)
-	for i := 0; i < len(in)-4; i += 6 {
-		board := make([][]cell, 5)
-		for j := 0; j < 5; j++ {
-			board[j] = make([]cell, 5)
-			row := s.Split(in[i+j], " ")
-			k := 0
-			for _, num := range row {
-				if num != "" {
-					iNum, _ := strconv.Atoi(num)
-					board[j][k] = cell{num: iNum, state: false}
-					k++
-				}
-			}
-		}
-		boards = append(boards, board)
-	}
+type scoredBoard struct {
+	board [][]cell
+	score int
+	id    int
+}
+
+func orderBoards(nums []int, boards [][][]cell) []scoredBoard {
+	orderedBoards := make([]scoredBoard, 0)
 	for _, num := range nums {
 		for i, board := range boards {
 			// Mark number
@@ -65,19 +54,28 @@ func parta(nums []int, in []string) int {
 			}
 			// Score if won
 			if won {
-				sum := 0
-				for _, row := range board {
-					for _, cell := range row {
-						if !cell.state {
-							sum += cell.num
-						}
+				alreadyDone := false
+				for _, scoredBoard := range orderedBoards {
+					if scoredBoard.id == i {
+						alreadyDone = true
 					}
 				}
-				return sum * num
+				if !alreadyDone {
+					sum := 0
+					for _, row := range board {
+						for _, cell := range row {
+							if !cell.state {
+								sum += cell.num
+							}
+						}
+					}
+					scored := scoredBoard{board: board, score: sum * num, id: i}
+					orderedBoards = append(orderedBoards, scored)
+				}
 			}
 		}
 	}
-	return 0 // Never reached
+	return orderedBoards
 }
 
 func main() {
@@ -95,7 +93,29 @@ func main() {
 	}
 	in = in[2:]
 
+	// Yucky board parsing
+	boards := make([][][]cell, 0)
+	for i := 0; i < len(in)-4; i += 6 {
+		board := make([][]cell, 5)
+		for j := 0; j < 5; j++ {
+			board[j] = make([]cell, 5)
+			row := s.Split(in[i+j], " ")
+			k := 0
+			for _, num := range row {
+				if num != "" {
+					iNum, _ := strconv.Atoi(num)
+					board[j][k] = cell{num: iNum, state: false}
+					k++
+				}
+			}
+		}
+		boards = append(boards, board)
+	}
+
 	if os.Args[2] == "a" {
-		fmt.Println(parta(nums, in))
+		fmt.Println(orderBoards(nums, boards)[0].score)
+	} else if os.Args[2] == "b" {
+		ordered := orderBoards(nums, boards)
+		fmt.Println(ordered[len(ordered)-1].score)
 	}
 }
