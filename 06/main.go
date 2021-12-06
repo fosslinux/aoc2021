@@ -7,8 +7,9 @@ import (
 	s "strings"
 )
 
-func simulate(fishes []int) int {
-	for day := 0; day < 80; day++ {
+func simulateOne(fish uint8, days int) int {
+	fishes := []uint8{fish}
+	for day := 0; day < days; day++ {
 		for i, fish := range fishes {
 			if fish == 0 {
 				fishes[i] = 6
@@ -17,8 +18,22 @@ func simulate(fishes []int) int {
 				fishes[i]--
 			}
 		}
+		fmt.Printf("Simulated %d days\n", day)
 	}
 	return len(fishes)
+}
+
+func simulate(fishes []uint8, days int) uint64 {
+	after := make([]uint64, 6)
+	for i := 0; i < 6; i++ {
+		after[i] = uint64(simulateOne(uint8(i), days))
+	}
+	var sum uint64
+	sum = 0
+	for _, fish := range fishes {
+		sum += after[fish]
+	}
+	return sum
 }
 
 func main() {
@@ -29,12 +44,15 @@ func main() {
 	in := s.Split(string(bin), "\n")
 
 	sStart := s.Split(in[0], ",")
-	start := make([]int, len(sStart))
+	start := make([]uint8, len(sStart))
 	for i, num := range sStart {
-		start[i], _ = strconv.Atoi(num)
+		startInt, _ := strconv.Atoi(num)
+		start[i] = uint8(startInt)
 	}
 
 	if os.Args[2] == "a" {
-		fmt.Println(parta(start))
+		fmt.Println(simulate(start, 80))
+	} else if os.Args[2] == "b" {
+		fmt.Println(simulate(start, 256))
 	}
 }
